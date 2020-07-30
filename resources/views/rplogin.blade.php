@@ -55,8 +55,8 @@
             loginCallback()
         })
         function loginCallback(){
-			const parent = window.open('http://35.237.245.250/op.com/login?response_type=code&scope=openid&client_id=393165&state=570681&redirect_uri=http://localhost:88/rp.com/cb', "myWindow", "width=800, height=700"
-            	)
+			const parent = window.open('http://35.196.178.229/op.com/login?response_type=code&scope=openid&client_id=732706&state=567545&redirect_uri=http://127.0.0.1:8888/rp.com/cb', "myWindow", "width=800, height=700"
+          )
             
         }
     </script>

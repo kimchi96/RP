@@ -31,6 +31,11 @@ class MyController extends Controller
         return view ('rp');
     }
 
+    public function getError()
+    {
+        return view ('error');
+    }
+
     public function getCallBack_RP(Request $request)
     {    
         $code          =   $request->input('code'); 
@@ -38,21 +43,57 @@ class MyController extends Controller
         $state         =   $request->input('state');
         if($error !== null)
         {
-            return view('error');  
+            return response()->view('error'); 
         }
         return view ('callback');
 
     }
+
     public function postCallBack_RP(Request $request)
     {
         $code          =   $request->input('code'); 
         $error         =   $request->input('error');
         $state         =   $request->input('state');
+
         if($error !== null)
         {
             return redirect()->route('rp'); 
         }
         return redirect()->route('userinfo');
+    }
+
+    public function checkToken(Request $request)
+    {
+        // get the local secret key
+        $key = rtrim(strtr(base64_encode('157073'), '+/', '-_'), '=');
+
+        // split the token
+        $token = $request->post();
+        $id_token = $token['token'];
+        $tokenParts = explode('.', $id_token);
+
+        $header = base64_decode(strtr($tokenParts[0], '-_', '+/'));
+        $payload = base64_decode(strtr($tokenParts[1], '-_', '+/'));
+        $signatureProvided = $tokenParts[2];
+    
+        // build a signature based on the header and payload using the secret
+        $base64url_Header = rtrim(strtr(base64_encode($header), '+/', '-_'), '='); 
+        $base64url_Payload = rtrim(strtr(base64_encode($payload), '+/', '-_'), '=');
+        $signature = hash_hmac('sha256', $base64url_Header . "." . $base64url_Payload, $key, true);
+        $base64url_Signature = rtrim(strtr(base64_encode($signature), '+/', '-_'), '=');
+        
+        // verify it matches the signature provided in the token
+        $signatureValid = ($base64url_Signature === $signatureProvided);
+
+        if ($signatureValid) {
+            $name = explode('"',$payload);
+            $name_info = $name[9];
+        
+            return response($name_info,200);
+        } else {
+            $error = 'Đăng nhập không thành công';
+            return response($error,401);
+        }
     }
 
     public function getLogin_RP()

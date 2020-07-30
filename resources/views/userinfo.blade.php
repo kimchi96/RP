@@ -46,7 +46,8 @@
                 <div class="header-middle">
                     <ul>
                         <li>
-                            <li><a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>username</a></li>
+                            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                            <i id="name_info"></i>
                         </li>
                     </ul>
                 </div>
@@ -72,25 +73,25 @@
                             <li>
                                 <ul class="info-text">
                                     <li class="info-text-left"><b>Name</b></li>
-                                    <li><span>:</span>21-08-1987</li>
+                                    <li><span>:</span><i id="name"></i></li>
                                 </ul>
                             </li>
                             <li>
                                 <ul class="info-text">
                                     <li class="info-text-left"><b>PHONE</b></li>
-                                    <li><span>:</span>(+000) 003 003 0052</li>
+                                    <li><span>:</span><i id="phone"></i></li>
                                 </ul>
                             </li>
                             <li>
                                 <ul class="info-text">
                                     <li class="info-text-left"><b>ADDRESS</b></li>
-                                    <li><span>:</span>3030 New York, NY, USA</li>
+                                    <li><span>:</span><i id="address"></i></li>
                                 </ul>
                             </li>
                             <li>
                                 <ul class="info-text">
                                     <li class="info-text-left"><b>E-MAIL</b></li>
-                                    <li><span>:</span><a href="mailto:example@mail.com"> info@example.com</a></li>
+                                    <li><span>:</span><i id="email"></i></a></li>
                                 </ul>
                             </li>
                         </ul>
@@ -135,29 +136,39 @@
 </body>
 <script src="../js/jwt-decode.js"></script>
 <SCRIPT LANGUAGE="JavaScript">
-    function confirmAction() {
-        var search = window.location.search.split('&')  
-        var code = search[0].split('=').pop()
-        var state = search[1].split('=').pop()
-        var redirect_uri = window.location.protocol + "//" + window.location.hostname + ':' + window.location.port + window.location.pathname;
-        var access_token = window.btoa('NpuYUFhsCh');
-            $.ajax({
-            type:'get',
-            url:'./userinfo',
-            headers: {
-                'authorization': 'Bearer ' + access_token
-            },
-            data: {
-                code,
-                state,
-                grant_type:"authorization_code",
-                redirect_uri
-            },
-            success:function(data){
-                window.opener.location.href = data
+    $(document).ready(function(){
+        getUserInfo()
+    })
+    function getUserInfo(){
+            var X_TOKEN = localStorage.getItem('X_TOKEN');
+
+            if(X_TOKEN !== null){
+
+                X_TOKEN = JSON.parse(X_TOKEN);
+
+                $.ajax({
+                type:'GET',
+                url:'http://35.196.178.229/api/userinfo',
+                headers: {
+                    'Authorization': 'Bearer ' +  X_TOKEN['access_token']
+                },
+                success:function(data){
+                    localStorage.setItem('X_INFO', JSON.stringify(data));
+                    document.getElementById("name_info").innerHTML = data.name;
+                    document.getElementById("name").innerHTML = data.name;
+                    document.getElementById("phone").innerHTML = data.phone;
+                    document.getElementById("address").innerHTML = data.address;
+                    document.getElementById("email").innerHTML = data.email;
+                },
+                error:function(error){
+                    if(error.status == 401){
+                        localStorage.removeItem('X_INFO');
+                    }
+                }
+
+           });
             }
-        });
-     
+            
     }
 </SCRIPT> 
 </html>

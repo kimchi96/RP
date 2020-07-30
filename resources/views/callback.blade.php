@@ -5,24 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" >
 <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
-<!-- bootstrap-css -->
 <link href="../css/bootstrap.css" rel="stylesheet" type="text/css" media="all" />
-<!--// bootstrap-css -->
-<!-- css -->
 <link rel="stylesheet" href="../css/style1.css" type="text/css" media="all" />
-<!--// css -->
-<!-- font-awesome icons -->
 <link href="../css/font-awesome.css" rel="stylesheet"> 
-<!-- //font-awesome icons -->
-<!-- font -->
 <link href="//fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet">
 <link href='//fonts.googleapis.com/css?family=Roboto+Condensed:400,700italic,700,400italic,300italic,300' rel='stylesheet' type='text/css'>
-<!-- //font -->
 <script src="../js/jquery-1.11.1.min.js"></script>
 <script src="../js/bootstrap.js"></script>
-<!-- light-box -->
 <link rel="stylesheet" href="../css/lightbox.css">
-<!-- //light-box -->
 <script type="text/javascript">
     jQuery(document).ready(function($) {
         $(".scroll").click(function(event){     
@@ -47,7 +37,9 @@
                     <form action="#" method="post">
                     <input type="hidden" name="_token" value="{{csrf_token()}}">
                     <ul>
-                        <li><a href="{{URL::route('userinfo')}}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>Thông tin người dùng<span id="user_name"></span></a></li>
+                        <li><a href="{{URL::route('userinfo')}}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                        <i id="name_info"></i>
+                        </li>
                     </ul>
                 </div>
                 <div class="header-right">
@@ -95,7 +87,8 @@
         <div class="banner-info">
             <div class="container">
                 <div class="w3layouts-text">
-                    <h2>WELCOME WEB DEMO</h2>
+                    <h2>WELCOME</h2>
+                    <h2><i id="error"></i></h2>
                 </div>
                 <div class="social">
                     <ul>
@@ -122,19 +115,19 @@
 </body>
 <SCRIPT LANGUAGE="JavaScript">
     $(document).ready(function(){
-        confirmAction()
+        callToken()
     })
-    function confirmAction() {
+    function callToken() {
         var search = window.location.search.split('&')  
         var code = search[0].split('=').pop()
         var state = search[1].split('=').pop()
-        var redirect_uri = window.location.protocol + "//" + window.location.hostname + ':' + window.location.port + window.location.pathname;
-        var authorization = window.btoa('393165:658991');
-        /*var authorization = window.btoa(client_id:client_secrect);*/
+        var redirect_uri = window.location.protocol + "//" + window.location.hostname + ':' + window.location.port + window.location.pathname
+        var authorization = window.btoa('157073');
+
         if(localStorage.getItem('X_TOKEN') === null){
             $.ajax({
-                type:'POST',
-                url:'http://localhost:8000/token',
+                type:'post',
+                url:'http://35.196.178.229/api/token',
                 headers: {
                     'Authorization': 'Basic ' + authorization 
                 },
@@ -146,39 +139,41 @@
                 },
                 success:function(data){
                     localStorage.setItem('X_TOKEN', JSON.stringify(data));
-                    getUserInfo();
-                 }
+                    checkToken();
+                },
+                error:function(error){
+                    if(error.status == 401){
+                        localStorage.removeItem('X_TOKEN');
+                    }
+                }
            });
         }
     }
-
-    function getUserInfo(){
-            var X_TOKEN = localStorage.getItem('X_TOKEN');
+    function checkToken(){
+        var X_TOKEN = localStorage.getItem('X_TOKEN');
 
             if(X_TOKEN !== null){
-
-                X_TOKEN = JSON.parse(X_TOKEN);
+                
+                var X_TOKEN = JSON.parse(X_TOKEN);
+                var token = X_TOKEN['id_token'];
 
                 $.ajax({
-                type:'GET',
-                url:'http://localhost:8000/userinfo',
-                headers: {
-                    'Authorization': 'Bearer ' +  X_TOKEN['access_token']
+                type:'get',
+                url:'./checkToken',
+                data:{
+                    token
                 },
                 success:function(data){
-                    localStorage.setItem('X_INFO', JSON.stringify(data));
-                    //get query selector ajax id html append html
+                    document.getElementById("name_info").innerHTML = data;
                 },
-                error: function(error){
+                error:function(error){
                     if(error.status == 401){
                         localStorage.removeItem('X_TOKEN');
-                        // tra ve trang bao loi
+                        window.location = './login-error';
                     }
                 }
-
-           });
-            }
-            
+            });
+        } 
     }
 </SCRIPT>
 </html>

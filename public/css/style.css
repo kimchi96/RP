@@ -38,8 +38,8 @@ h1 {
     font-size: 3em;
     text-align: center;
     color: #fff;
-    padding: .9em 0;
-    text-transform: uppercase;
+    padding: .9em;
+    text-transform: inherit;
     letter-spacing: 7px;
 }
 h2{
@@ -86,7 +86,7 @@ button {
 /*-- contact --*/  
 .contact-w3left {
     text-align: center;
-    padding-top: 10em;
+    padding-top: 5em;
 }
 .contact-w3left img {
     display: block;
